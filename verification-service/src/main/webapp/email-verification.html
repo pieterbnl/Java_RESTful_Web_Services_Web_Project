@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verification Service</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <script language="javascript">
+    // jQuery code snippet
+    $(document).ready(function() {
+        var urlParams = new URLSearchParams(location.search);
+        if (urlParams.has('token'))
+        {
+            // alert("The token = " + urlParams.get('token')); -- for testing purposes
+            verifyToken(urlParams.get('token'));
+        }
+
+        // Send HTTP get request, which will trigger REST controller on /email-verification endpoint
+        // which will read the request param token
+        function verifyToken(tokenValue)
+        {
+            // Variable token stores tokenValue, which has been received as method argument.
+            // When this http get request is executed and tje RESTful web service returns a result,
+            // done will be triggered. The function inside will be triggered with the response object,
+            // that will contain the object that's send in the rest controller
+            // ->> OperationStatusModel - which will be converted in JSON (or XML if specified in accept header).
+            $.getJSON('http://localhost:8080/mobile-app-ws/users/email-verification', {token: tokenValue})
+            .done(function (response) {
+
+                if (response["operationResult"] === "SUCCESS")
+                {
+                    $("#not-successful-result").attr("style", "display: none !important;");
+                    $("#successful-result").attr("style", "display: block !important;");
+                } else {
+                    $("#successful-result").attr("style", "display: none !important;");
+                    $("#not-successful-result").attr("style", "display: block !important;");
+                }
+            });
+        }
+    });
+    </script>
+
+</head>
+<body>
+    <div id="successful-result" style="display:none">Successful verification</div>
+    <div id="not-successful-result" style="display:none">Verification link has expired</div>
+</body>
+</html>
